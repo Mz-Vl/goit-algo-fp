@@ -59,7 +59,6 @@ def draw_heap(heap_root):
     pos = {heap_root.id: (0, 0)}
     tree = add_heap_edges(tree, heap_root, pos)
 
-    # Set the size of nodes in proportion to their height
     sizes = [float(data['label'].split('\n')[1].split(': ')[1]) * 500 for _, data in tree.nodes(data=True)]
     colors = [node[1]['color'] for node in tree.nodes(data=True)]
 
