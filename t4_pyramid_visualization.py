@@ -1,5 +1,5 @@
+import heapq
 import uuid
-
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -13,10 +13,28 @@ class Node:
         self.id = str(uuid.uuid4())
 
 
+def build_heap_tree(heap_list):
+    heap_tree_root = Node(heap_list[0])
+    for value in heap_list[1:]:
+        add_to_heap_tree(heap_tree_root, value)
+    return heap_tree_root
+
+
+def add_to_heap_tree(node, value):
+    if not node.left:
+        node.left = Node(value)
+    elif not node.right:
+        node.right = Node(value)
+    else:
+        if value < node.left.val:
+            add_to_heap_tree(node.left, value)
+        else:
+            add_to_heap_tree(node.right, value)
+
+
 def add_heap_edges(graph, node, pos, x=0, y=0, layer=1):
     if node is not None:
 
-        # Keep the node height
         node.height = layer
         graph.add_node(node.id, color=node.color,
                        label=str(node.val) + "\nheight: " + str(node.height))
@@ -54,16 +72,12 @@ def draw_heap(heap_root):
 
 
 def main():
-    # Creating a binary heap
-    heap_root = Node(10)
-    heap_root.left = Node(8)
-    heap_root.right = Node(5)
-    heap_root.left.left = Node(6)
-    heap_root.left.right = Node(3)
-    heap_root.right.left = Node(2)
+    heap_lst = [1, 3, 5, 7, 9, 2, 4, 34]
+    heapq.heapify(heap_lst)
 
-    # A binary heap representation
-    draw_heap(heap_root)
+    heap_tree_root = build_heap_tree(heap_lst)
+
+    draw_heap(heap_tree_root)
 
 
 if __name__ == "__main__":
