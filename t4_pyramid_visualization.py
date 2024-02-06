@@ -26,10 +26,18 @@ def add_to_heap_tree(node, value):
     elif not node.right:
         node.right = Node(value)
     else:
-        if value < node.left.val:
+        if node.left.left is None or node.left.right is None:
             add_to_heap_tree(node.left, value)
-        else:
+        elif node.right.left is None or node.right.right is None:
             add_to_heap_tree(node.right, value)
+        else:
+            left_sum = node.left.val + node.left.left.val if node.left.left else float('inf')
+            right_sum = node.right.val + node.right.left.val if node.right.left else float('inf')
+
+            if left_sum <= right_sum:
+                add_to_heap_tree(node.left, value)
+            else:
+                add_to_heap_tree(node.right, value)
 
 
 def add_heap_edges(graph, node, pos, x=0, y=0, layer=1):
@@ -71,7 +79,8 @@ def draw_heap(heap_root):
 
 
 def main():
-    heap_lst = [1, 3, 5, 7, 9, 2, 4, 34]
+    # heap_lst = [1, 3, 5, 7, 9, 2, 4, 34]
+    heap_lst = [0, 1, 2, 3, 7, 8, 9, 34, 2, 5, 4]
     heapq.heapify(heap_lst)
 
     heap_tree_root = build_heap_tree(heap_lst)
