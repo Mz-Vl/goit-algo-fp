@@ -27,10 +27,18 @@ def add_to_heap_tree(node, value):
     elif not node.right:
         node.right = Node(value)
     else:
-        if value < node.left.val:
+        if node.left.left is None or node.left.right is None:
             add_to_heap_tree(node.left, value)
-        else:
+        elif node.right.left is None or node.right.right is None:
             add_to_heap_tree(node.right, value)
+        else:
+            left_sum = node.left.val + node.left.left.val if node.left.left else float('inf')
+            right_sum = node.right.val + node.right.left.val if node.right.left else float('inf')
+
+            if left_sum <= right_sum:
+                add_to_heap_tree(node.left, value)
+            else:
+                add_to_heap_tree(node.right, value)
 
 
 def add_heap_edges(graph, node, pos, x=0, y=0, layer=1):
@@ -63,6 +71,8 @@ def draw_heap(heap_root, traversal_sequence=None):
     if traversal_sequence:
         colors = [cm.Blues(1.0 - i / len(traversal_sequence)) for i, _ in enumerate(traversal_sequence)]
         color_map = dict(zip(traversal_sequence, colors))
+        for node_id, color in color_map.items():
+            tree.nodes[node_id]['color'] = color
     else:
         color_map = {node[0]: node[1]['color'] for node in tree.nodes(data=True)}
 
@@ -77,18 +87,38 @@ def draw_heap(heap_root, traversal_sequence=None):
     plt.show()
 
 
-def bfs_traversal(node, traversal_sequence):
-    if node is not None:
-        traversal_sequence.append(node.id)
-        bfs_traversal(node.left, traversal_sequence)
-        bfs_traversal(node.right, traversal_sequence)
+def bfs_traversal(node):
+    traversal_sequence = []
+    if node is None:
+        return traversal_sequence
+
+    queue = [(node, node.val)]
+    while queue:
+        current_node, value = queue.pop(0)
+        traversal_sequence.append((current_node.id, value))
+        if current_node.left:
+            queue.append((current_node.left, current_node.left.val))
+        if current_node.right:
+            queue.append((current_node.right, current_node.right.val))
+
+    return traversal_sequence
 
 
-def dfs_traversal(node, traversal_sequence):
-    if node is not None:
-        dfs_traversal(node.left, traversal_sequence)
-        traversal_sequence.append(node.id)
-        dfs_traversal(node.right, traversal_sequence)
+def dfs_traversal(node):
+    traversal_sequence = []
+    if node is None:
+        return traversal_sequence
+
+    stack = [(node, node.val)]
+    while stack:
+        current_node, value = stack.pop()
+        traversal_sequence.append((current_node.id, value))
+        if current_node.right:
+            stack.append((current_node.right, current_node.right.val))
+        if current_node.left:
+            stack.append((current_node.left, current_node.left.val))
+
+    return traversal_sequence
 
 
 def main():
@@ -97,13 +127,17 @@ def main():
 
     heap_tree_root = build_heap_tree(heap_lst)
 
-    bfs_sequence = []
-    bfs_traversal(heap_tree_root, bfs_sequence)
-    draw_heap(heap_tree_root, bfs_sequence)
+    bfs_sequence = bfs_traversal(heap_tree_root)
+    draw_heap(heap_tree_root, [node[0] for node in bfs_sequence])
+    print("BFS Traversal Sequence with Values:")
+    for node_id, value in bfs_sequence:
+        print(f"Node ID: {node_id}, Value: {value}")
 
-    dfs_sequence = []
-    dfs_traversal(heap_tree_root, dfs_sequence)
-    draw_heap(heap_tree_root, dfs_sequence)
+    dfs_sequence = dfs_traversal(heap_tree_root)
+    draw_heap(heap_tree_root, [node[0] for node in dfs_sequence])
+    print("\nDFS Traversal Sequence with Values:")
+    for node_id, value in dfs_sequence:
+        print(f"Node ID: {node_id}, Value: {value}")
 
 
 if __name__ == "__main__":
